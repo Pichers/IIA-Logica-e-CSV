@@ -16,12 +16,6 @@ def csp_prop(formulas):
             variables_str.add(str(literal))
     variables = sorted(variables)
     variables_str = sorted(variables_str)
-
-    # for formula in formulas:
-    #     for literal in prop_symbols(formula):
-    #         literal_str = str(literal)
-    #         if literal_str not in variables:
-    #             variables.append(literal_str)
     
     for i in range(len(variables)):
         var = variables[i]
@@ -42,19 +36,6 @@ def csp_prop(formulas):
                         domains[var_str] = [True]
                     else:
                         domains[var_str] = [False]
-                
-            # n = isNegative(p)
-
-            # if var in symbols and len(domains[var_str]) > 1:
-            #     if len(symbols) == 1:
-            #         if n:
-            #             domains[var_str] = [False]
-            #         else:
-            #             domains[var_str] = [True]
-            # if len(domains[var_str]) == 1 and len(symbols) == 1 and var in symbols:
-            #     if domains[var_str] == [True]:
-
-            # domains[var] = [True] if (len(prop_symbols(p)) == 1) and (p == literal) else [False, True]
 
     for i in range(len(variables)):
         variable = variables[i]
@@ -69,25 +50,47 @@ def csp_prop(formulas):
                     s_str = str(s)
                     if s_str != variable_str and (s_str not in neighbors[variable_str]):
                         neighbors[variable_str].append(s_str)
-        # print("\n")
-            # symbols = prop_symbols(formula)
-            # if variable in symbols:
-            #     other_symbols = [s for s in symbols if s != expr(variable)]
-            #     neighbors[variable].extend(other_symbols)
 
-    # for formula in formulas:
-    #     if len(prop_symbols(formula)) == 1:
-    #         constraints[formula] = []
-    #     elif len(prop_symbols(formula)) == 2:
-    #         constraints[formula] = [formula]
-    #     else:
-    #         constraints[formula] = []
-    #         for literal in prop_symbols(formula):
-    #             constraints[formula].append(literal)
+    def constraints(var1, val1, var2, val2):
+        kb = PropKB()
+        result = True
 
-    return CSP(variables_str, domains, neighbors, None)
+        if val1 == False:
+            newVar1 = expr('~' + var1)
+            kb.tell(newVar1)
+        elif val1 == True:
+            newVar1 = expr(var1)
+            kb.tell(newVar1)
+
+        if val2 == False:
+            newVar2 = expr('~' + var2)
+            kb.tell(newVar2)
+        elif val2 == True:
+            newVar2 = expr(var2)
+            kb.tell(newVar2)
+
+        for p in propkb.clauses:
+            symbols = prop_symbols(p)
+
+            if (var1 in symbols) or (var2 in symbols):
+                if kb.ask_if_true(p) == False:
+                    return False
+                # result = result and kb.ask_if_true(p, False)
+        return True
+
+
+    return CSP(variables_str, domains, neighbors, constraints)
 
 def value(exp):
     exp_str = str(exp)
-    til = '~'
-    return til  not in exp_str
+    return '~'  not in exp_str
+
+
+try:
+    formulas={expr('VA | VP'),expr('AV | AP'),expr('PV | PA'),expr('VP'),expr('VA ==> ~VP'),expr('AP ==> ~AV'),\
+          expr('PA ==> ~PV'),expr('VA ==> ~PA'),expr('PV ==> ~AV'),expr('VP ==> ~AP')}
+    dancam_csp=csp_prop(formulas)
+    r = backtracking_search(dancam_csp)
+    print('Assignment = ',r)
+except Exception as e:
+    print(repr(e))
