@@ -33,15 +33,15 @@ def csp_prop(formulas):
             symbols = prop_symbols(p)
 
             if len(symbols) == 1:
-                n = isNegative(p)
+                v = value(p)
                 if var in symbols:
-                    if len(domains[var_str]) < 2:
-                        if n != domains[var_str][0]:
-                            domains[var_str] = []
-                    if n:
-                        domains[var_str] = [False]
-                    else:
+
+                    if (len(domains[var_str]) <= 1) and (v not in domains[var_str]):
+                        domains[var_str] = []
+                    elif v:
                         domains[var_str] = [True]
+                    else:
+                        domains[var_str] = [False]
                 
             # n = isNegative(p)
 
@@ -66,9 +66,6 @@ def csp_prop(formulas):
             ss = prop_symbols(p)
             if variable in ss:
                 for s in ss:
-                    # print(s)
-                    # print(variable, ", ", s, ": ", s != variable)
-                    # print("_",s,"_")
                     s_str = str(s)
                     if s_str != variable_str and (s_str not in neighbors[variable_str]):
                         neighbors[variable_str].append(s_str)
@@ -90,7 +87,7 @@ def csp_prop(formulas):
 
     return CSP(variables_str, domains, neighbors, None)
 
-def isNegative(exp):
+def value(exp):
     exp_str = str(exp)
     til = '~'
-    return til in exp_str
+    return til  not in exp_str
