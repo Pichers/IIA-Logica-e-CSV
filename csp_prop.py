@@ -2,8 +2,8 @@ from logic import *
 from csp import *
 
 def csp_prop(formulas):
-    variables = []
-    variables_str = []
+    variables = set()
+    variables_str = set()
     domains = {}
     neighbors = {}
     
@@ -12,10 +12,8 @@ def csp_prop(formulas):
     for f in formulas:
         propkb.tell(f)
         for literal in prop_symbols(f):
-
-            if literal not in variables:
-                variables.append(literal)
-                variables_str.append(str(literal))
+            variables.add(literal)
+            variables_str.add(str(literal))
     variables = sorted(variables)
     variables_str = sorted(variables_str)
 
