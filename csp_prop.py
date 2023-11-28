@@ -27,13 +27,33 @@ def csp_prop(formulas):
         var = variables[i]
         var_str = variables_str[i]
 
+        domains[var_str] = [False, True]
+
         for p in propkb.clauses:
             symbols = prop_symbols(p)
-            if var in symbols:
-                if len(symbols) == 1:
-                    domains[var_str] = [True]
-                else:
-                    domains[var_str] = [False, True]
+
+            if len(symbols) == 1:
+                n = isNegative(p)
+                if var in symbols:
+                    if len(domains[var_str]) < 2:
+                        if n != domains[var_str][0]:
+                            domains[var_str] = []
+                    if n:
+                        domains[var_str] = [False]
+                    else:
+                        domains[var_str] = [True]
+                
+            # n = isNegative(p)
+
+            # if var in symbols and len(domains[var_str]) > 1:
+            #     if len(symbols) == 1:
+            #         if n:
+            #             domains[var_str] = [False]
+            #         else:
+            #             domains[var_str] = [True]
+            # if len(domains[var_str]) == 1 and len(symbols) == 1 and var in symbols:
+            #     if domains[var_str] == [True]:
+
             # domains[var] = [True] if (len(prop_symbols(p)) == 1) and (p == literal) else [False, True]
 
     for i in range(len(variables)):
@@ -69,3 +89,8 @@ def csp_prop(formulas):
     #             constraints[formula].append(literal)
 
     return CSP(variables_str, domains, neighbors, None)
+
+def isNegative(exp):
+    exp_str = str(exp)
+    til = '~'
+    return til in exp_str
